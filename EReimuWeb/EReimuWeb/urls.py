@@ -15,7 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-
+from django.conf.urls import url
+from whiteReimu.views import *
 urlpatterns = [
     path('admin/', admin.site.urls),
+    url(r'^uploadURL/$', uploadURL),
+    url(r'^search/$', uploadURLForm),
+    url(r'^uploadUsername/$', uploadUsername),
 ]
