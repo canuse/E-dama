@@ -11,4 +11,15 @@ class MahjongRecord(models.Model):
     log_url = models.URLField(blank=True)
     player_name = models.CharField(max_length=16)
     creat_date = models.DateTimeField(default=datetime.datetime.now)
-    is_finished = models.BooleanField(default=False)
+
+class Queue(models.Model):
+    """
+    Choose this low efficiency way due to these reasons:
+    1. Queue can be rebuilt easily when the service is down
+    2. Celery doesn't work properly on win10
+    3. Lazy
+    """
+    log_url = models.URLField(blank=True)
+    player_name = models.CharField(max_length=16)
+    creat_date = models.DateTimeField(default=datetime.datetime.now)
+    priority = models.IntegerField(default=10)

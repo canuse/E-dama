@@ -5,9 +5,39 @@
 <title>E-White-Reimu Web</title>
 </head>
 <body>
+{% if ERRMSG %}
+<div>出现了一些问题，具体为：<br>
+{{ERRMSG}}<br>
+请检查链接是否正确，然后再次输入<br>
+</div>
+{% endif %}
+{% if not userList %}
+请输入牌谱链接，注意包含http:// <br>
     <form action="/uploadURL" method="get">
         <input type="text" name="logURL">
         <input type="submit" value="确定">
     </form>
+{% endif %}
+{% if userList %}
+<div>
+    查询日志成功，该对局中共有以下几个用户：<br>
+<ul>
+{% for user in userList %}
+    <li> {{user}} <br></li>
+{% endfor %}
+</ul>
+选择一个用户继续 <br>
+<form method="post" action="/uploadUsername/">
+    {% csrf_token %}
+    <input type="hidden" readonly="readonly" value="{{ URL }}" name="logURL"/>
+    <select name="playerName">
+        {% for value in usernameList %}
+            <option value="{{ value }}">{{ value }}</option>
+        {% endfor %}}
+    </select>
+    <input type="submit" value="确定"/>
+</form>
+</div>
+{% endif %}
 </body>
 </html>

@@ -1,3 +1,5 @@
-class URLerror(Exception):
-    def __init__(self, arg):
-        self.args = arg
+class URLError(Exception):
+    pass
+
+class EmptyForm(Exception):
+    pass
