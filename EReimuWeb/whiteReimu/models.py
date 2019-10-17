@@ -15,9 +15,8 @@ class MahjongRecord(models.Model):
 class Queue(models.Model):
     """
     Choose this low efficiency way due to these reasons:
-    1. Queue can be rebuilt easily when the service is down
+    1. Queue can be edited through django admin
     2. Celery doesn't work properly on win10
-    3. Lazy
     """
     log_url = models.URLField(blank=True)
     player_name = models.CharField(max_length=16)

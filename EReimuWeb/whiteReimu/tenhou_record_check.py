@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# copied from https://github.com/Ledenel/auto-white-reimu
 
 import operator as op
 import os
