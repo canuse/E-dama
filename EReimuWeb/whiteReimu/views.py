@@ -1,12 +1,11 @@
 import re
 
-from django.http import HttpResponse
-from django.shortcuts import render_to_response, render
-from mahjong.record.reader import from_url
-
-from whiteReimu.models import *
+from django.shortcuts import render
+from django.shortcuts import render_to_response
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from .exceptions import *
 from .scheduler import *
+
 
 # Create your views here.
 
@@ -38,14 +37,68 @@ def uploadUsername(request):
     logURL = request.POST['logURL']
     playerName = request.POST['playerName']
     # query record in database to confirm no repeat
-    a = Queue.objects.filter(log_url=request.POST['logURL'], player_name=playerName)
-    b = MahjongRecord.objects.filter(log_url=request.POST['logURL'], player_name=playerName)
+    a = Queue.objects.filter(log_url=logURL, player_name=playerName)
+    b = MahjongRecord.objects.filter(log_url=logURL, player_name=playerName)
     if len(a) != 0 or len(b) != 0:
         return render_to_response('InputURL.html', {'ERRMSG': "Record Already Exist"})
+    place = len(Queue.objects.all())
+    if place > 50:
+        return render_to_response('Queue.html', {'queryfull': 1})
     c = Queue(log_url=logURL, player_name=playerName)
     c.save()
-    return HttpResponse(request.POST['playerName'] + request.POST['logURL'] + str(Process.status))
+    taskID = c.id
+    time = round((place+1) * stat.averageTime / 6) / 10
+    return render_to_response('Queue.html',
+                              {'taskID': taskID, 'time': time, 'place': place, 'URL': logURL, 'username': playerName})
 
 
 def uploadURLForm(request):
     return render_to_response('InputURL.html')
+
+
+def record(request):
+    content_list = MahjongRecord.objects.all()
+    paginator = Paginator(content_list, 25)
+
+    page = request.GET.get('page')
+    try:
+        content = paginator.page(page)
+    except PageNotAnInteger:
+        content = paginator.page(1)
+    except EmptyPage:
+        content = paginator.page(paginator.num_pages)
+    return render(request, 'Record.html', {'content': content})
+def failList(request):
+    content_list = Fails.objects.all()
+    paginator = Paginator(content_list, 25)
+
+    page = request.GET.get('page')
+    try:
+        content = paginator.page(page)
+    except PageNotAnInteger:
+        content = paginator.page(1)
+    except EmptyPage:
+        content = paginator.page(paginator.num_pages)
+    return render(request, 'FailList.html', {'content': content})
+
+def checkUser(request):
+    playerName = request.GET['username']
+    if playerName=='Noname':
+        content_list=[]
+    else:
+        content_list = MahjongRecord.objects.filter(player_name=playerName)
+    paginator = Paginator(content_list, 25)
+
+    page = request.GET.get('page')
+    try:
+        content = paginator.page(page)
+    except PageNotAnInteger:
+        content = paginator.page(1)
+    except EmptyPage:
+        content = paginator.page(paginator.num_pages)
+    return render(request, 'Record.html', {'content': content})
+
+def queryList(request):
+    queue = Queue.objects.all()
+
+    return render(request, 'QueryList.html', {'content': queue,'num':len(queue)})

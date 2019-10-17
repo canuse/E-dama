@@ -22,4 +22,8 @@ urlpatterns = [
     url(r'^uploadURL/$', uploadURL),
     url(r'^search/$', uploadURLForm),
     url(r'^uploadUsername/$', uploadUsername),
+    url(r'^record/$', record),
+    url(r'^queryList/$', queryList),
+    url(r'^checkUser/$', checkUser),
+    url(r'^failList/$', failList),
 ]

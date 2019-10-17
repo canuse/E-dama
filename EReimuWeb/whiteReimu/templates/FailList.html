@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>QueryList</title>
+</head>
+<body>
+以下任务在分析过程中出现了一些问题导致失败，请一段时间后重试。
+<table border="1">
+    <tr>
+        <th>Task ID</th>
+        <th>Log URL</th>
+        <th>Player Name</th>
+        <th>Create Date</th>
+    </tr>
+{% for item in content %}
+    <tr>
+        <td>{{item.id}}</td>
+        <td>{{item.log_url}}</td>
+        <td>{{item.player_name}}</td>
+        <td>{{item.creat_date}}</td>
+    </tr>
+{% endfor %}
+</table>
+</body>
+</html>

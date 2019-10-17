@@ -5,32 +5,43 @@
     <title>E-White-Reimu Records</title>
 </head>
 <body>
-以下为所有的日志分析记录，点击<a href="QueueStatus.html">这里</a>查看当前正在处理的队列的情况。<br>
+以下为所有的日志分析记录，点击<a href="/queryList">这里</a>查看当前正在处理的队列，点击<a href="/failList">这里</a>查看失败的任务。<br>
 您也可以利用下面的搜索框搜索用户名进行快速查询，注意用户名进行的是完整匹配。另外，Noname不可被查询。
     <form action="/checkUser" method="get">
-        <input type="text" name="logURL">
+        <input type="text" name="username">
         <input type="submit" value="搜索用户">
     </form>
-
-{% for contact in contacts %}
-    {# 每个"contact"都是一个Contact模型对象. #}
-    {{ contact.full_name|upper }}<br />
-    ...
+<table border="1">
+    <tr>
+        <th>Task ID</th>
+        <th>Log URL</th>
+        <th>Player Name</th>
+        <th>Record</th>
+        <th>Create Date</th>
+    </tr>
+{% for item in content %}
+    <tr>
+        <td>{{item.id}}</td>
+        <td>{{item.log_url}}</td>
+        <td>{{item.player_name}}</td>
+        <td><a href="/history/{{item.save_url}}">分析结果</a></td>
+        <td>{{item.creat_date}}</td>
+    </tr>
 {% endfor %}
+</table>
 
-{# 分页标签的HTML代码 #}
 <div class="pagination">
     <span class="step-links">
-        {% if contacts.has_previous %}
-            <a href="?page={{ contacts.previous_page_number }}">previous</a>
+        {% if content.has_previous %}
+            <a href="?page={{ content.previous_page_number }}">previous</a>
         {% endif %}
 
         <span class="current">
-            Page {{ contacts.number }} of {{ contacts.paginator.num_pages }}.
+            Page {{ content.number }} of {{ content.paginator.num_pages }}.
         </span>
 
-        {% if contacts.has_next %}
-            <a href="?page={{ contacts.next_page_number }}">next</a>
+        {% if content.has_next %}
+            <a href="?page={{ content.next_page_number }}">next</a>
         {% endif %}
     </span>
 </div>

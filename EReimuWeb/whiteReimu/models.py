@@ -11,6 +11,7 @@ class MahjongRecord(models.Model):
     log_url = models.URLField(blank=True)
     player_name = models.CharField(max_length=16)
     creat_date = models.DateTimeField(default=datetime.datetime.now)
+    save_url=models.URLField(blank=True)
 
 class Queue(models.Model):
     """
@@ -22,3 +23,9 @@ class Queue(models.Model):
     player_name = models.CharField(max_length=16)
     creat_date = models.DateTimeField(default=datetime.datetime.now)
     priority = models.IntegerField(default=10)
+
+
+class Fails(models.Model):
+    log_url = models.URLField(blank=True)
+    player_name = models.CharField(max_length=16)
+    creat_date = models.DateTimeField(default=datetime.datetime.now)
