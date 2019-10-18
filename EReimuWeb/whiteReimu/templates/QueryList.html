@@ -2,25 +2,40 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>QueryList</title>
+        <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css"
+          integrity="sha384-oAOxQR6DkCoMliIh8yFnu25d7Eq/PHS21PClpwjOTeU2jRSq11vu66rf90/cZr47" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/base-min.css">
+
+    <title>E-dama</title>
 </head>
 <body>
-目前等待队列共有{{num}}项<br>
-<table border="1">
+<div class="pure-menu pure-menu-horizontal">
+    <ul class="pure-menu-list">
+        <li class="pure-menu-item"><a href="/" class="pure-menu-link">输入牌谱</a></li>
+        <li class="pure-menu-item"><a href="/record" class="pure-menu-link">查看结果</a></li>
+        <li class="pure-menu-item"><a href="#" class="pure-menu-link">任务队列</a></li>
+        <li class="pure-menu-item"><a href="/failList" class="pure-menu-link">失败任务</a></li>
+        <li class="pure-menu-item"><a href="/bugReport.html" class="pure-menu-link">bug report</a></li>
+    </ul>
+</div>
+<p>目前等待队列共有{{num}}项<br></p>
+
+<p></p>
+<table class="pure-table pure-table-horizontal pure-table-striped">
     <tr>
         <th>Task ID</th>
         <th>Log URL</th>
         <th>Player Name</th>
         <th>Create Date</th>
     </tr>
-{% for item in content %}
+    {% for item in content %}
     <tr>
         <td>{{item.id}}</td>
         <td>{{item.log_url}}</td>
         <td>{{item.player_name}}</td>
         <td>{{item.creat_date}}</td>
     </tr>
-{% endfor %}
+    {% endfor %}
 </table>
 </body>
 </html>

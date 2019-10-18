@@ -2,11 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>QueryList</title>
+            <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css"
+          integrity="sha384-oAOxQR6DkCoMliIh8yFnu25d7Eq/PHS21PClpwjOTeU2jRSq11vu66rf90/cZr47" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/base-min.css">
+
+    <title>E-dama</title>
 </head>
 <body>
-以下任务在分析过程中出现了一些问题导致失败，请一段时间后重试。
-<table border="1">
+<div class="pure-menu pure-menu-horizontal">
+    <ul class="pure-menu-list">
+        <li class="pure-menu-item"><a href="/" class="pure-menu-link">输入牌谱</a></li>
+        <li class="pure-menu-item"><a href="/record" class="pure-menu-link">查看结果</a></li>
+        <li class="pure-menu-item"><a href="/queryList" class="pure-menu-link">任务队列</a></li>
+        <li class="pure-menu-item"><a href="#" class="pure-menu-link">失败任务</a></li>
+        <li class="pure-menu-item"><a href="/bugReport.html" class="pure-menu-link">bug report</a></li>
+    </ul>
+</div>
+<p>以下任务在分析过程中出现了一些问题导致失败，请一段时间后重试。</p>
+<table class="pure-table pure-table-horizontal pure-table-striped">
     <tr>
         <th>Task ID</th>
         <th>Log URL</th>

@@ -2,18 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv ="refresh"; content ="5; url ='/record'">
     <title>E-White-Reimu Web</title>
 </head>
 <body>
 {% if not queryfull %}
-链接 {{URL}} 用户 {{username}} 创建成功 <br>
+<p>链接 {{URL}} 用户 {{username}} 创建成功 <br>
 任务ID：{{taskID}} <br>
 当前排在队伍中的第{{place}}<br>
-预计排队时间{{time}}分钟<br>
-您可以在<a href="/record">记录页面</a>查看任务状态与分析结果
+    预计排队时间{{time}}分钟<br></p>
 {% endif %}
 {% if queryfull %}
-当前任务队列已满，请稍后再试，先逛逛<a href="/record">记录页面</a>查看其他人的分析结果。
+<p>当前任务队列已满，请稍后再试。</p>
 {% endif %}
+<p>5秒后跳转到结果页面。</p>
 </body>
 </html>
