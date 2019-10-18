@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import operator as op
 # Form implementation generated from reading ui file '..\\QtUI\\main.ui'
 #
 # Created by: PyQt5 UI code generator 5.13.0
@@ -7,27 +8,13 @@
 # WARNING! All changes made in this file will be lost!
 import re
 import sys
+from functools import reduce
+from itertools import groupby
+from multiprocessing import Process
+from typing import Set, List, Callable, TypeVar, Optional
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-# -*- coding: utf-8 -*-
-# copied from https://github.com/Ledenel/auto-white-reimu
-
-import operator as op
-import os
-from functools import reduce
-from itertools import groupby
-from typing import Set, List, Callable, TypeVar, Optional
-# -*- coding: utf-8 -*-
-# copied from https://github.com/Ledenel/auto-white-reimu
-
-import operator as op
-import os
-from functools import reduce
-from itertools import groupby
-from typing import Set, List, Callable, TypeVar, Optional
-
 from jinja2 import Environment, select_autoescape, FileSystemLoader
-
 from mahjong.container.pattern.reasoning import HeuristicPatternMatchWaiting
 from mahjong.container.pattern.win import NormalTypeWin, UniquePairs
 from mahjong.container.set import TileSet
@@ -38,7 +25,12 @@ from mahjong.record.utils import event
 from mahjong.record.utils.value.meld import Kita
 from mahjong.record.utils.value.tile import tile_from_tenhou, tile_to_tenhou_range
 from mahjong.tile.definition import Tile
-from multiprocessing import Process
+
+
+# -*- coding: utf-8 -*-
+# copied from https://github.com/Ledenel/auto-white-reimu
+# -*- coding: utf-8 -*-
+# copied from https://github.com/Ledenel/auto-white-reimu
 
 def n_a_r(n, r):
     return reduce(op.mul, range(n, n - r, -1), 1)
@@ -227,7 +219,6 @@ def reasoning_discards(hand, invisible_player_perspective, tile, win):
     return ReasoningItem(tile, waiting_step, useful_tiles, useful_tiles_count)
 
 
-
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -282,8 +273,7 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-        self.url=''
-
+        self.url = ''
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -295,7 +285,7 @@ class Ui_MainWindow(object):
 
     def getURL(self):
         try:
-            URL= self.plainTextEdit.toPlainText()
+            URL = self.plainTextEdit.toPlainText()
             if not re.match(r'^http://tenhou\.net/\d/\?log=.*$', URL):
                 self.textBrowser.setText("错误的牌谱链接，请重新输入")
                 self.plainTextEdit.setPlainText("")
@@ -303,24 +293,24 @@ class Ui_MainWindow(object):
             record = from_url(URL, 10)
             for i in record.players:
                 self.comboBox.addItem(i.name)
-            self.url=URL
+            self.url = URL
         except:
             self.textBrowser.setText("未知错误，请重新输入")
 
     def process(self):
         try:
-            if self.url=='':
+            if self.url == '':
                 raise ValueError('url is empty')
             log_url = self.url
             name = self.comboBox.currentText()
             self.textBrowser.setPlainText("执行中,文件存放在tenhou_record_%s_%s.html" % (log_id_from_url(log_url), name))
-            tr1=Process(target=run, args=(log_url,name))
+            tr1 = Process(target=run, args=(log_url, name))
             tr1.start()
         except:
             self.textBrowser.setText("执行错误，请检查网络与牌谱链接")
 
 
-def run(log_url,name):
+def run(log_url, name):
     record = from_url(log_url, 10)
     planned_players = record.players.copy()
     if name.strip():
@@ -345,7 +335,6 @@ def run(log_url,name):
                 games=games
             ))
     print("完成")
-
 
 
 if __name__ == '__main__':
