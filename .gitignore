@@ -105,3 +105,7 @@ venv.bak/
 
 settings.conf
 /.idea/
+
+EReimuWeb/static/
+EReimuWeb/whiteReimu/Records/*.html
+EReimuWeb/EReimuWeb/settings.py
