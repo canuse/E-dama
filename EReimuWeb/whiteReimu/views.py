@@ -40,7 +40,7 @@ def uploadUsername(request):
     a = Queue.objects.filter(log_url=logURL, player_name=playerName)
     b = MahjongRecord.objects.filter(log_url=logURL, player_name=playerName)
     if len(a) != 0 or len(b) != 0:
-        return render_to_response('InputURL.html', {'ERRMSG': "Record Already Exist"})
+        return render_to_response('InputURL.html', {'ERRMSG': "Record Already Exist, check the results"})
     place = len(Queue.objects.all())
     if place > 50:
         return render_to_response('Queue.html', {'queryfull': 1})
