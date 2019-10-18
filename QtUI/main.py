@@ -6,11 +6,14 @@ import operator as op
 # Created by: PyQt5 UI code generator 5.13.0
 #
 # WARNING! All changes made in this file will be lost!
+
+import PyQt5.sip
+from jinja2 import Template
 import re
 import sys
 from functools import reduce
 from itertools import groupby
-from multiprocessing import Process
+import threading
 from typing import Set, List, Callable, TypeVar, Optional
 
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -304,37 +307,192 @@ class Ui_MainWindow(object):
             log_url = self.url
             name = self.comboBox.currentText()
             self.textBrowser.setPlainText("执行中,文件存放在tenhou_record_%s_%s.html" % (log_id_from_url(log_url), name))
-            tr1 = Process(target=run, args=(log_url, name))
+            tr1=run(log_url,name)
             tr1.start()
         except:
             self.textBrowser.setText("执行错误，请检查网络与牌谱链接")
 
+class run(threading.Thread):
+    def __init__(self,log_url,name):
+        threading.Thread.__init__(self)
+        self.log_url=log_url
+        self.name=name
 
-def run(log_url, name):
-    record = from_url(log_url, 10)
-    planned_players = record.players.copy()
-    if name.strip():
-        player = next((x for x in record.players if x.name == name), None)
-        if player is None:
-            raise ValueError("Player '%s' not found in record %s." % (name, record))
-        planned_players = [player]
-    env = Environment(
-        loader=FileSystemLoader('templates'),
-        autoescape=select_autoescape(['html', 'xml'])
-    )
-    template = env.get_template("record_checker_template.html")
-    for player in planned_players:
-        games = [GameAnalysis(str(game), game_reason_list(game, player, record)) for game in record.game_list]
+    def run(self):
+        record = from_url(self.log_url, 10)
+        planned_players = record.players.copy()
+        if self.name.strip():
+            player = next((x for x in record.players if x.name == self.name), None)
+            if player is None:
+                raise ValueError("Player '%s' not found in record %s." % (self.name, record))
+            planned_players = [player]
+        '''env = Environment(
+            loader=FileSystemLoader('templates'),
+            autoescape=select_autoescape(['html', 'xml'])
+        )
+        template = env.get_template("record_checker_template.html")'''
+        template = Template('''
+        <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Record Checker Result</title>
+    <style type="text/css">
+        .tile {
+            letter-spacing: -12px;
+            font-size: 36px;
+            padding-right: 12px;
+        }
 
-        file_name = "tenhou_record_%s_%s.html" % (log_id_from_url(log_url), player.name)
-        with open(file_name, "w+", encoding='utf-8') as result_file:
-            result_file.write(template.render(
-                player=str(player),
-                record=str(record),
-                log_url=log_url,
-                games=games
-            ))
-    print("完成")
+        .tile-small {
+            letter-spacing: -7.5px;
+            font-size: 24px;
+            padding-right: 12px;
+        }
+
+        .game-caption {
+            font-size: 24px;
+        }
+
+        .reasoning-tile {
+            border-bottom: 1px solid grey;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        .hint-red {
+            background-color: red;
+        }
+
+        .hint-blue {
+            background-color: blue;
+        }
+    </style>
+</head>
+<body>
+
+<p class="tile">🀀🀁🀂🀃🀄🀅🀆🀇🀈🀉🀊🀋🀌🀍🀎🀏🀐🀑🀒🀓🀔🀕🀖🀗🀘🀙🀚🀛🀜🀝🀞🀟🀠🀡</p>
+<p class="tile-small">🀀🀁🀂🀃🀄🀅🀆🀇🀈🀉🀊🀋🀌🀍🀎🀏🀐🀑🀒🀓🀔🀕🀖🀗🀘🀙🀚🀛🀜🀝🀞🀟🀠🀡</p>
+
+<p> Player: {{ player }} </p>
+<p>{{ record }} <a href="{{ log_url }}">Link</a></p>
+
+<p>
+    Hint: <span class="hint-red">Red</span> color is before richii,
+    <span class="hint-blue">Blue</span> Color is after richii, which could be accepted(may go to defence, or could't
+    change waiting tiles.)
+
+
+</p>
+<p>The more it colored, the worse it has been choosen.</p>
+<p>
+    提示：<span class="hint-red">红色</span>为立直前，<span class="hint-blue">蓝色</span>为立直后，可以接受（可能进入防守，或者无法切换听牌。）
+</p>
+
+{% for game in games %}
+    <div>
+        <details open>
+            <summary><span class="game-caption">{{ game.name }}</span></summary>
+            <table>
+                <tr>
+                    <th>Round <br>(巡目)</th>
+                    <th>Hand <br>(手牌)</th>
+                    <th>Your Choice <br>(你的选择)</th>
+                    <th>Expected Choice <br>(期望选择)</th>
+                    <th>Reasoning <br>(牌理)</th>
+                </tr>
+                {% for round in game.rounds %}
+                    <tr style="background-color: {% if round.somebody_richii %} rgba(0, 0, 255, {% else %} rgba(255, 0, 0, {% endif %}{{ round.wrong_rate }});">
+                        <td>{{ loop.index }}</td>
+                        <td>
+                            {% for meld in round.melds %}<span class="tile">{{ meld }}</span>{% endfor %}<span
+                                class="tile">{{ round.hand }}</span>
+                        </td>
+                        <td class="tile">{{ round.your_choice_reasoning.discard_tile }}</td>
+                        <td class="tile">
+                            {% for reasoning in round.expected_reasonings %}{{ reasoning.discard_tile }}{% endfor %}
+                        </td>
+                        <td>
+                            <details>
+                                <summary>
+                                    Expected: Steps {{ round.expected_reasonings[0].waiting_step }}
+                                    Tiles {{ round.expected_reasonings[0].useful_tiles_count }},
+                                    Actual: Steps {{ round.your_choice_reasoning.waiting_step }}
+                                    Tiles {{ round.your_choice_reasoning.useful_tiles_count }}
+                                </summary>
+                                {% for reasoning in round.merged_reasoning %}
+                                    <div class="reasoning-tile">
+                                        <div>Discard<span
+                                                class="tile-small">{{ reasoning.discard_tile }}</span>{{ reasoning.waiting_step }}
+                                            Steps
+                                            {{ reasoning.useful_tiles_count }} Tiles
+                                        </div>
+                                        <div>Expect<span class="tile-small">{{ reasoning.useful_tiles }}</span>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                                <details>
+                                    <summary>
+                                        Normal-Type Reasoning
+                                    </summary>
+                                    {% for reasoning in round.normal_reasonings %}
+                                        <div class="reasoning-tile">
+                                            <div>Discard<span
+                                                    class="tile-small">{{ reasoning.discard_tile }}</span>{{ reasoning.waiting_step }}
+                                                Steps
+                                                {{ reasoning.useful_tiles_count }} Tiles
+                                            </div>
+                                            <div>Expect<span class="tile-small">{{ reasoning.useful_tiles }}</span>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </details>
+                                <details>
+                                    <summary>
+                                        Seven-Pair Reasoning
+                                    </summary>
+                                    {% for reasoning in round.seven_pair_reasonings %}
+                                        <div class="reasoning-tile">
+                                            <div>Discard<span
+                                                    class="tile-small">{{ reasoning.discard_tile }}</span>{{ reasoning.waiting_step }}
+                                                Steps
+                                                {{ reasoning.useful_tiles_count }} Tiles
+                                            </div>
+                                            <div>Expect<span class="tile-small">{{ reasoning.useful_tiles }}</span>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </details>
+                            </details>
+
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </details>
+    </div>
+{% endfor %}
+</body>
+</html>
+        ''')
+        for player in planned_players:
+            games = [GameAnalysis(str(game), game_reason_list(game, player, record)) for game in record.game_list]
+
+            file_name = "tenhou_record_%s_%s.html" % (log_id_from_url(self.log_url), player.name)
+            with open(file_name, "w+", encoding='utf-8') as result_file:
+                result_file.write(template.render(
+                    player=str(player),
+                    record=str(record),
+                    log_url=self.log_url,
+                    games=games
+                ))
+        print("完成")
 
 
 if __name__ == '__main__':
